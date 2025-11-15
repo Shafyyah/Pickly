@@ -10,13 +10,13 @@ All colors MUST be HSL.
   :root {
     /* Calm decision-making colors */
     --background: 210 40% 98%;
-    --foreground: 220 15% 15%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 15% 15%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
 
     /* Soft teal for clarity */
     --primary: 190 80% 50%;
@@ -24,10 +24,10 @@ All colors MUST be HSL.
 
     /* Warm peach for cooking */
     --secondary: 20 85% 65%;
-    --secondary-foreground: 220 15% 15%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 20% 92%;
-    --muted-foreground: 220 15% 35%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 85%;
 
     /* Soft blue-purple for accents */
     --accent: 200 70% 60%;
@@ -36,8 +36,8 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 85%;
-    --input: 0 0% 100%;
+    --border: 0 0% 100%;
+    --input: 0 0% 15%;
     --ring: 190 80% 50%;
 
     --radius: 0.75rem;
