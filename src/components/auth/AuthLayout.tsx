@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import wallpaper from "@/assets/wallpaper.png";
+import wallpaper from "@/assets/wallpaper.jpg";
 
 interface AuthLayoutProps {
   children: ReactNode;

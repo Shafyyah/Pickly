@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChefHat, Sparkles, Search, LogOut } from "lucide-react";
 import { toast } from "sonner";
-import wallpaper from "@/assets/wallpaper.png";
+import wallpaper from "@/assets/wallpaper.jpg";
 
 interface ChatMessage {
   role: "user" | "assistant";
