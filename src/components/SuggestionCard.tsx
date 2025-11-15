@@ -18,8 +18,8 @@ interface SuggestionCardProps {
   };
   mindMapNodes: MindMapNode[];
   onDoIt: () => void;
-  onSuggestAgain: () => void;
-  onPickForMe: () => void;
+  onSuggestAgain?: () => void;
+  onPickForMe?: () => void;
   onChatMessage: (message: string) => void;
   loading?: boolean;
 }
@@ -128,30 +128,13 @@ export const SuggestionCard = ({
 
       <MindMap nodes={mindMapNodes} finalSuggestion={title} />
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
+      <div className="mt-6">
         <Button
           onClick={handleDoIt}
           className="w-full"
           disabled={loading}
         >
           Do It
-        </Button>
-        <Button
-          onClick={onSuggestAgain}
-          variant="outline"
-          disabled={loading}
-        >
-          Suggest Again
-        </Button>
-        <Button
-          onClick={() => {
-            setExpanded(true);
-            onPickForMe();
-          }}
-          variant="secondary"
-          disabled={loading}
-        >
-          Pick For Me
         </Button>
       </div>
 

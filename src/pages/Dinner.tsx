@@ -196,12 +196,34 @@ const Dinner = () => {
                   details={recipe.details}
                   mindMapNodes={recipe.mindMapNodes}
                   onDoIt={() => console.log("Do it")}
-                  onSuggestAgain={generateRecipes}
-                  onPickForMe={() => console.log("Pick for me")}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
                 />
               ))}
+              
+              {/* Action Buttons at the end */}
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  onClick={generateRecipes} 
+                  disabled={loading}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Suggest Again
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const randomIndex = Math.floor(Math.random() * recipes.length);
+                    // TODO: Implement expand logic for the selected recipe
+                    console.log("Picked recipe:", recipes[randomIndex].title);
+                  }}
+                  disabled={loading}
+                  className="flex-1"
+                >
+                  Pick For Me
+                </Button>
+              </div>
             </div>
           )}
         </div>
