@@ -7,6 +7,7 @@ import { SuggestionCard } from "@/components/SuggestionCard";
 import { toast } from "sonner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import wallpaper from "@/assets/wallpaper.png";
 
 const Activity = () => {
   const [user, setUser] = useState<any>(null);
@@ -69,20 +70,28 @@ const Activity = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--gradient-subtle)' }}>
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="absolute inset-0 animate-slow-pan">
+        <img 
+          src={wallpaper} 
+          alt="" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6 text-white hover:bg-white/20">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
 
         {showSurvey ? (
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent mb-8">
+            <h1 className="text-4xl font-bold text-white mb-8">
               Quick Preferences
             </h1>
             
-            <div className="bg-card rounded-2xl p-8 space-y-8" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="bg-card/90 backdrop-blur-md rounded-2xl p-8 space-y-8 border border-white/20" style={{ boxShadow: 'var(--shadow-card)' }}>
               <div className="space-y-4">
                 <Label className="text-lg font-semibold">How's your energy level?</Label>
                 <RadioGroup value={surveyAnswers.energy} onValueChange={(v) => setSurveyAnswers({...surveyAnswers, energy: v})}>
@@ -186,13 +195,14 @@ const Activity = () => {
           <>
 
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-white">
             What Should I Do?
           </h1>
           <Button
             onClick={() => generateActivities()}
             disabled={loading}
             variant="outline"
+            className="text-white border-white/30 hover:bg-white/20"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
@@ -201,7 +211,7 @@ const Activity = () => {
 
         <div className="max-w-4xl mx-auto space-y-6">
           {activities.length === 0 && !loading && (
-            <div className="bg-card rounded-2xl p-12 text-center" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="bg-card/90 backdrop-blur-md rounded-2xl p-12 text-center border border-white/20" style={{ boxShadow: 'var(--shadow-card)' }}>
               <p className="text-muted-foreground">Generating personalized activities for you...</p>
             </div>
           )}
