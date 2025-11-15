@@ -6,6 +6,7 @@ import { ArrowLeft, Upload, X, Loader2 } from "lucide-react";
 import { SuggestionCard } from "@/components/SuggestionCard";
 import { toast } from "sonner";
 import type { MindMapNode } from "@/components/MindMap";
+import wallpaper from "@/assets/wallpaper.png";
 
 const Dinner = () => {
   const [user, setUser] = useState<any>(null);
@@ -121,21 +122,29 @@ const Dinner = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--gradient-subtle)' }}>
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="absolute inset-0 animate-slow-pan">
+        <img 
+          src={wallpaper} 
+          alt="" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </div>
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6 text-white hover:bg-white/20">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
 
-        <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-8 text-white">
           What Should I Cook Tonight?
         </h1>
 
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Image Upload */}
           {!preview && (
-            <div className="bg-card rounded-2xl p-12 text-center" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="bg-card/90 backdrop-blur-md rounded-2xl p-12 text-center border border-white/20" style={{ boxShadow: 'var(--shadow-card)' }}>
               <input
                 type="file"
                 accept="image/*"
@@ -160,7 +169,7 @@ const Dinner = () => {
 
           {/* Image Preview */}
           {preview && !ingredients.length && (
-            <div className="bg-card rounded-2xl p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="bg-card/90 backdrop-blur-md rounded-2xl p-6 border border-white/20" style={{ boxShadow: 'var(--shadow-card)' }}>
               <img
                 src={preview}
                 alt="Fridge contents"
@@ -186,7 +195,7 @@ const Dinner = () => {
 
           {/* Ingredients List */}
           {ingredients.length > 0 && !recipes.length && (
-            <div className="bg-card rounded-2xl p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="bg-card/90 backdrop-blur-md rounded-2xl p-6 border border-white/20" style={{ boxShadow: 'var(--shadow-card)' }}>
               <h3 className="text-xl font-semibold mb-4">Detected Ingredients</h3>
               <div className="flex flex-wrap gap-2 mb-6">
                 {ingredients.map((ingredient, i) => (
