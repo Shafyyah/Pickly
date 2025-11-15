@@ -1,73 +1,145 @@
-# Welcome to your Lovable project
+# Pickly - AI-Powered Decision Assistant
 
-## Project info
+Pickly is an intelligent decision-making assistant that helps you make better choices in everyday situations. Whether you're deciding what to cook for dinner, what activity to do, or need help with any decision, Pickly uses AI to analyze your context and provide personalized suggestions.
 
-**URL**: https://lovable.dev/projects/48306ed5-2020-448d-b670-03a98aa2b1e9
+## Features
 
-## How can I edit this code?
+### 🔍 Universal Decision Search
+Ask any decision-related question and get AI-powered guidance through an interactive conversation that understands context and asks follow-up questions when needed.
 
-There are several ways of editing your application.
+### 🍳 Smart Recipe Suggestions
+Upload a photo of your fridge contents and receive personalized recipe suggestions based on available ingredients, dietary preferences, and cooking time.
 
-**Use Lovable**
+### 🎯 Activity Recommendations
+Get spontaneous activity suggestions tailored to:
+- Current time of day
+- Weather conditions
+- Your personal preferences
+- Available resources
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/48306ed5-2020-448d-b670-03a98aa2b1e9) and start prompting.
+### 🔐 User Authentication
+Secure user accounts with email/password authentication, allowing personalized experiences and saved preferences.
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tech Stack
 
-**Use your preferred IDE**
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **Backend**: Lovable Cloud (Supabase)
+- **Database**: PostgreSQL with Row Level Security
+- **Authentication**: Supabase Auth
+- **AI**: Lovable AI (Gemini & GPT models)
+- **Routing**: React Router v6
+- **State Management**: TanStack Query
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd <project-name>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Install dependencies:
+```bash
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. Set up environment variables:
+Create a `.env` file in the root directory with the following variables:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+VITE_SUPABASE_PROJECT_ID=your_project_id
+```
+
+4. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+├── src/
+│   ├── components/       # Reusable UI components
+│   │   ├── ui/          # shadcn/ui components
+│   │   └── auth/        # Authentication components
+│   ├── pages/           # Page components
+│   ├── integrations/    # Supabase integration
+│   ├── hooks/           # Custom React hooks
+│   └── lib/             # Utility functions
+├── supabase/
+│   └── functions/       # Edge functions
+└── public/              # Static assets
+```
 
-This project is built with:
+## Database Schema
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The app uses the following main tables:
+- `chat_history` - Stores conversation history
+- `suggestion_history` - Tracks user decisions and suggestions
+- `image_analysis_history` - Records fridge photo analyses
+- `user_preferences` - Stores user preferences and settings
 
-## How can I deploy this project?
+## Edge Functions
 
-Simply open [Lovable](https://lovable.dev/projects/48306ed5-2020-448d-b670-03a98aa2b1e9) and click on Share -> Publish.
+- `universal-search` - Handles AI-powered decision assistance
+- `generate-recipes` - Creates recipe suggestions from ingredients
+- `generate-activities` - Suggests activities based on context
+- `analyze-ingredients` - Analyzes fridge photos for ingredients
+- `chat-modify` - Manages conversational AI interactions
 
-## Can I connect a custom domain to my Lovable project?
+## Deployment
 
-Yes, you can!
+### Via Lovable
+1. Click the "Publish" button in the Lovable editor
+2. Click "Update" to deploy frontend changes
+3. Backend changes deploy automatically
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Self-Hosting
+This app can be deployed to any static hosting platform:
+- Vercel
+- Netlify
+- AWS Amplify
+- GitHub Pages
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Make sure to configure environment variables in your hosting platform.
+
+## Contributing
+
+This project was created with [Lovable](https://lovable.dev). To contribute:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Support
+
+For questions or issues, please open an issue in the GitHub repository or visit [Lovable Documentation](https://docs.lovable.dev).
+
+## Acknowledgments
+
+- Built with [Lovable](https://lovable.dev)
+- UI components from [shadcn/ui](https://ui.shadcn.com)
+- Backend powered by Lovable Cloud
