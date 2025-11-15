@@ -22,6 +22,7 @@ interface SuggestionCardProps {
   onPickForMe?: () => void;
   onChatMessage: (message: string) => void;
   loading?: boolean;
+  expanded?: boolean;
 }
 
 export const SuggestionCard = ({
@@ -34,12 +35,17 @@ export const SuggestionCard = ({
   onPickForMe,
   onChatMessage,
   loading,
+  expanded: externalExpanded,
 }: SuggestionCardProps) => {
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
+  
+  const expanded = externalExpanded !== undefined ? externalExpanded : internalExpanded;
 
   const handleDoIt = () => {
-    setExpanded(true);
+    if (externalExpanded === undefined) {
+      setInternalExpanded(true);
+    }
     onDoIt();
   };
 
