@@ -139,7 +139,7 @@ export const SuggestionCard = ({
           {details.steps && <div>
               <h4 className="font-semibold mb-2">Steps:</h4>
               <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                {details.steps.map((step, i) => <li key={i}>{step}</li>)}
+                {details.steps.map((step, i) => <li key={i} className="text-slate-50">{step}</li>)}
               </ol>
             </div>}
 
