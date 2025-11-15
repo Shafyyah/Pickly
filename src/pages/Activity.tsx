@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
 import { SuggestionCard } from "@/components/SuggestionCard";
 import { toast } from "sonner";
 
@@ -75,20 +75,45 @@ const Activity = () => {
             </div>
           )}
 
-          {activities.map((activity, i) => (
-            <SuggestionCard
-              key={i}
-              title={activity.title}
-              summary={activity.summary}
-              details={activity.details}
-              mindMapNodes={activity.mindMapNodes}
-              onDoIt={() => console.log("Do it")}
-              onSuggestAgain={() => generateActivities()}
-              onPickForMe={() => console.log("Pick for me")}
-              onChatMessage={(msg) => console.log("Chat:", msg)}
-              loading={loading}
-            />
-          ))}
+          {activities.length > 0 && (
+            <div className="space-y-6">
+              {activities.map((activity, i) => (
+                <SuggestionCard
+                  key={i}
+                  title={activity.title}
+                  summary={activity.summary}
+                  details={activity.details}
+                  mindMapNodes={activity.mindMapNodes}
+                  onDoIt={() => console.log("Do it")}
+                  onChatMessage={(msg) => console.log("Chat:", msg)}
+                  loading={loading}
+                />
+              ))}
+              
+              {/* Action Buttons at the end */}
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  onClick={() => generateActivities()} 
+                  disabled={loading}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Suggest Again
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const randomIndex = Math.floor(Math.random() * activities.length);
+                    console.log("Picked activity:", activities[randomIndex].title);
+                  }}
+                  disabled={loading}
+                  className="flex-1"
+                >
+                  Pick For Me
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
