@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, ChefHat, Sparkles } from "lucide-react";
+import { Loader2, ChefHat, Sparkles, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SuggestionCardProps {
   title: string;
@@ -25,6 +27,11 @@ interface SuggestionCardProps {
   hideButtons?: boolean;
 }
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export const SuggestionCard = ({
   title,
   summary,
@@ -40,6 +47,9 @@ export const SuggestionCard = ({
 }: SuggestionCardProps) => {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [showChat, setShowChat] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   
   const expanded = externalExpanded !== undefined ? externalExpanded : internalExpanded;
 
@@ -50,10 +60,48 @@ export const SuggestionCard = ({
     onDoIt?.();
   };
 
-  const handleSendMessage = () => {
-    if (chatMessage.trim()) {
-      onChatMessage(chatMessage);
-      setChatMessage("");
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || isSending) return;
+
+    const userMessage = chatMessage.trim();
+    setChatMessage("");
+    setShowChat(true);
+    
+    // Add user message to chat history
+    const newUserMsg: ChatMessage = { role: "user", content: userMessage };
+    setChatHistory(prev => [...prev, newUserMsg]);
+    
+    setIsSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("chat-modify", {
+        body: {
+          messages: [...chatHistory, newUserMsg].map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          currentItem: { title, summary, details }
+        }
+      });
+
+      if (error) throw error;
+
+      // Add AI response to chat history
+      const aiResponse: ChatMessage = {
+        role: "assistant",
+        content: data.response
+      };
+      setChatHistory(prev => [...prev, aiResponse]);
+      
+      onChatMessage(userMessage);
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      const errorMsg: ChatMessage = {
+        role: "assistant",
+        content: "Sorry, I encountered an error. Please try again."
+      };
+      setChatHistory(prev => [...prev, errorMsg]);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -153,16 +201,48 @@ export const SuggestionCard = ({
             </Button>
           </div>
 
+          {showChat && chatHistory.length > 0 && (
+            <div className="mt-4">
+              <ScrollArea className="h-64 rounded-lg border bg-muted/30 p-4">
+                <div className="space-y-4">
+                  {chatHistory.map((msg, i) => (
+                    <div
+                      key={i}
+                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                          msg.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-card text-card-foreground"
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {isSending && (
+                    <div className="flex justify-start">
+                      <div className="bg-card text-card-foreground rounded-lg px-4 py-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
+
           <div className="mt-4 flex gap-2">
             <Input
               placeholder="Ask for modifications..."
               value={chatMessage}
               onChange={(e) => setChatMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-              disabled={loading}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSendMessage()}
+              disabled={isSending}
             />
-            <Button onClick={handleSendMessage} disabled={loading || !chatMessage.trim()}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send"}
+            <Button onClick={handleSendMessage} disabled={isSending || !chatMessage.trim()} size="icon">
+              {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
         </>
