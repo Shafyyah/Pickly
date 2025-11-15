@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChefHat, Sparkles } from "lucide-react";
-import { MindMap, type MindMapNode } from "./MindMap";
 import { Input } from "@/components/ui/input";
 
 interface SuggestionCardProps {
@@ -16,26 +15,28 @@ interface SuggestionCardProps {
     duration?: string;
     instructions?: string[];
   };
-  mindMapNodes: MindMapNode[];
-  onDoIt: () => void;
+  imageUrl?: string;
+  onDoIt?: () => void;
   onSuggestAgain?: () => void;
   onPickForMe?: () => void;
   onChatMessage: (message: string) => void;
   loading?: boolean;
   expanded?: boolean;
+  hideButtons?: boolean;
 }
 
 export const SuggestionCard = ({
   title,
   summary,
   details,
-  mindMapNodes,
+  imageUrl,
   onDoIt,
   onSuggestAgain,
   onPickForMe,
   onChatMessage,
   loading,
   expanded: externalExpanded,
+  hideButtons,
 }: SuggestionCardProps) => {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
@@ -46,7 +47,7 @@ export const SuggestionCard = ({
     if (externalExpanded === undefined) {
       setInternalExpanded(true);
     }
-    onDoIt();
+    onDoIt?.();
   };
 
   const handleSendMessage = () => {
@@ -63,6 +64,14 @@ export const SuggestionCard = ({
       }`}
       style={{ boxShadow: expanded ? 'var(--shadow-card)' : 'var(--shadow-soft)' }}
     >
+      {imageUrl && (
+        <img 
+          src={imageUrl} 
+          alt={title}
+          className="w-full h-64 object-cover rounded-xl mb-4"
+        />
+      )}
+      
       <div className="flex items-start gap-3 mb-4">
         {details?.ingredients ? (
           <ChefHat className="w-6 h-6 text-secondary flex-shrink-0 mt-1" />
@@ -132,30 +141,32 @@ export const SuggestionCard = ({
         </div>
       )}
 
-      <MindMap nodes={mindMapNodes} finalSuggestion={title} />
+      {!hideButtons && (
+        <>
+          <div className="mt-6">
+            <Button
+              onClick={handleDoIt}
+              className="w-full"
+              disabled={loading}
+            >
+              Do It
+            </Button>
+          </div>
 
-      <div className="mt-6">
-        <Button
-          onClick={handleDoIt}
-          className="w-full"
-          disabled={loading}
-        >
-          Do It
-        </Button>
-      </div>
-
-      <div className="mt-4 flex gap-2">
-        <Input
-          placeholder="Ask for modifications..."
-          value={chatMessage}
-          onChange={(e) => setChatMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-          disabled={loading}
-        />
-        <Button onClick={handleSendMessage} disabled={loading || !chatMessage.trim()}>
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send"}
-        </Button>
-      </div>
+          <div className="mt-4 flex gap-2">
+            <Input
+              placeholder="Ask for modifications..."
+              value={chatMessage}
+              onChange={(e) => setChatMessage(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+              disabled={loading}
+            />
+            <Button onClick={handleSendMessage} disabled={loading || !chatMessage.trim()}>
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send"}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

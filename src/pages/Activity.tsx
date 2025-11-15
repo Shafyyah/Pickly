@@ -84,7 +84,7 @@ const Activity = () => {
                   title={activity.title}
                   summary={activity.summary}
                   details={activity.details}
-                  mindMapNodes={activity.mindMapNodes}
+                  imageUrl={activity.imageUrl}
                   onDoIt={() => console.log("Do it")}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
