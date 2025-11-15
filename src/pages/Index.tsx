@@ -66,7 +66,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Pickly
+            Micro-Decision Helper
           </h1>
           <Button variant="ghost" onClick={handleSignOut}>
             <LogOut className="w-4 h-4 mr-2" />

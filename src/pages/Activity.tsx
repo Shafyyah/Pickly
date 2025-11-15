@@ -12,8 +12,6 @@ const Activity = () => {
   const [activities, setActivities] = useState<any[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [pickedIndex, setPickedIndex] = useState<number | null>(null);
-  const [chatHistories, setChatHistories] = useState<Record<number, any[]>>({});
-  const [modifiedActivity, setModifiedActivity] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,8 +33,6 @@ const Activity = () => {
     setLoading(true);
     setPickedIndex(null);
     setExpandedIndex(null);
-    setChatHistories({});
-    setModifiedActivity(null);
     try {
       const { data, error } = await supabase.functions.invoke("generate-activities", {
         body: { userId: id },
@@ -50,39 +46,6 @@ const Activity = () => {
       toast.error(error.message || "Failed to generate activities");
     }
     setLoading(false);
-  };
-
-  const applyModifications = async (index: number) => {
-    const chatHistory = chatHistories[index];
-    if (!chatHistory || chatHistory.length === 0) {
-      return activities[index];
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("chat-modify", {
-        body: {
-          messages: chatHistory.map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-          currentItem: activities[index]
-        }
-      });
-
-      if (error) throw error;
-
-      return {
-        ...activities[index],
-        summary: `${activities[index].summary}\n\n${data.response}`
-      };
-    } catch (error: any) {
-      console.error("Error applying modifications:", error);
-      toast.error("Failed to apply modifications");
-      return activities[index];
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (!user) return null;
@@ -120,10 +83,10 @@ const Activity = () => {
             <div className="space-y-6">
               {pickedIndex !== null ? (
                 <SuggestionCard
-                  title={modifiedActivity?.title || activities[pickedIndex].title}
-                  summary={modifiedActivity?.summary || activities[pickedIndex].summary}
-                  details={modifiedActivity?.details || activities[pickedIndex].details}
-                  imageUrl={modifiedActivity?.imageUrl || activities[pickedIndex].imageUrl}
+                  title={activities[pickedIndex].title}
+                  summary={activities[pickedIndex].summary}
+                  details={activities[pickedIndex].details}
+                  imageUrl={activities[pickedIndex].imageUrl}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
                   expanded={true}
@@ -138,16 +101,11 @@ const Activity = () => {
                       summary={activity.summary}
                       details={activity.details}
                       imageUrl={activity.imageUrl}
-                      onDoIt={async () => {
-                        const modified = await applyModifications(i);
-                        setModifiedActivity(modified);
+                      onDoIt={() => {
                         setPickedIndex(i);
                         toast.success(`Let's do: ${activity.title}`);
                       }}
                       onChatMessage={(msg) => console.log("Chat:", msg)}
-                      onChatHistoryUpdate={(history) => {
-                        setChatHistories(prev => ({ ...prev, [i]: history }));
-                      }}
                       loading={loading}
                       expanded={expandedIndex === i}
                     />
@@ -165,10 +123,8 @@ const Activity = () => {
                       Suggest Again
                     </Button>
                     <Button 
-                      onClick={async () => {
+                      onClick={() => {
                         const randomIndex = Math.floor(Math.random() * activities.length);
-                        const modified = await applyModifications(randomIndex);
-                        setModifiedActivity(modified);
                         setPickedIndex(randomIndex);
                         toast.success(`Let's do: ${activities[randomIndex].title}`);
                       }}

@@ -22,7 +22,6 @@ interface SuggestionCardProps {
   onSuggestAgain?: () => void;
   onPickForMe?: () => void;
   onChatMessage: (message: string) => void;
-  onChatHistoryUpdate?: (history: ChatMessage[]) => void;
   loading?: boolean;
   expanded?: boolean;
   hideButtons?: boolean;
@@ -42,7 +41,6 @@ export const SuggestionCard = ({
   onSuggestAgain,
   onPickForMe,
   onChatMessage,
-  onChatHistoryUpdate,
   loading,
   expanded: externalExpanded,
   hideButtons,
@@ -92,11 +90,7 @@ export const SuggestionCard = ({
         role: "assistant",
         content: data.response
       };
-      const updatedHistory = [...chatHistory, newUserMsg, aiResponse];
-      setChatHistory(updatedHistory);
-      
-      // Notify parent of chat history update
-      onChatHistoryUpdate?.(updatedHistory);
+      setChatHistory(prev => [...prev, aiResponse]);
       
       onChatMessage(userMessage);
     } catch (error: any) {
