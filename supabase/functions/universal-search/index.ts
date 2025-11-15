@@ -10,14 +10,42 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { query, userId } = await req.json();
+    const { query, userId, conversationHistory = [] } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log('Processing universal search query:', query);
+    console.log('Processing query with', conversationHistory.length, 'previous messages');
+
+    // Build conversation messages
+    const messages = [
+      {
+        role: 'system',
+        content: `You are a thoughtful decision-making assistant. Your job is to help users make decisions by:
+1. If you don't have enough context, ask 1-2 specific clarifying questions to understand their situation better
+2. Once you have sufficient context, provide a clear recommendation with reasoning
+3. Keep responses conversational and natural
+
+When you need more info, set needsMoreInfo to true and ask questions.
+When ready to decide, set needsMoreInfo to false and provide decision, reasoning, and alternatives.`
+      }
+    ];
+
+    // Add conversation history
+    conversationHistory.forEach((msg: any) => {
+      messages.push({
+        role: msg.role,
+        content: msg.content
+      });
+    });
+
+    // Add current query
+    messages.push({
+      role: 'user',
+      content: query
+    });
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -27,25 +55,31 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [
+        messages,
+        tools: [
           {
-            role: 'system',
-            content: 'You are a decision-making assistant. Help users make thoughtful decisions by analyzing their questions and providing clear, actionable advice.'
-          },
-          {
-            role: 'user',
-            content: `Help me decide: ${query}
-            
-            Return a JSON object with:
-            - decision: string (your recommendation)
-            - reasoning: string (why this is the best choice)
-            - alternatives: array of strings (other options to consider)
-            - mindMapNodes: array of objects with label and type (input/context/analysis/final)
-            
-            For mindMapNodes, include nodes that show your decision-making process.`
+            type: "function",
+            function: {
+              name: "respond_to_user",
+              description: "Respond to the user's decision request",
+              parameters: {
+                type: "object",
+                properties: {
+                  response: { 
+                    type: "string", 
+                    description: "Your response - either questions for clarification or your final decision with reasoning" 
+                  },
+                  needsMoreInfo: { 
+                    type: "boolean", 
+                    description: "True if you need to ask questions, false if ready to make a decision" 
+                  }
+                },
+                required: ["response", "needsMoreInfo"]
+              }
+            }
           }
         ],
-        response_format: { type: 'json_object' }
+        tool_choice: { type: "function", function: { name: "respond_to_user" } }
       }),
     });
 
@@ -56,9 +90,15 @@ Deno.serve(async (req) => {
     }
 
     const data = await response.json();
-    const result = JSON.parse(data.choices[0].message.content);
     
-    console.log('Generated decision');
+    // Extract structured data from tool call
+    const toolCall = data.choices[0].message.tool_calls?.[0];
+    if (!toolCall) {
+      throw new Error('No tool call in response');
+    }
+    
+    const result = JSON.parse(toolCall.function.arguments);
+    console.log('Response generated, needsMoreInfo:', result.needsMoreInfo);
 
     return new Response(
       JSON.stringify(result),

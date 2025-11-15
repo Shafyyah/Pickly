@@ -6,11 +6,18 @@ import { Input } from "@/components/ui/input";
 import { ChefHat, Sparkles, Search, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  isQuestion?: boolean;
+}
+
 const Index = () => {
   const [user, setUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
-  const [decisionResult, setDecisionResult] = useState<any>(null);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [showChat, setShowChat] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,19 +50,38 @@ const Index = () => {
   const handleUniversalSearch = async () => {
     if (!searchQuery.trim()) return;
     
+    const userMessage: ChatMessage = { role: "user", content: searchQuery };
+    const newHistory = [...chatHistory, userMessage];
+    setChatHistory(newHistory);
+    setShowChat(true);
+    setSearchQuery("");
     setSearching(true);
-    setDecisionResult(null);
+    
     try {
       const { data, error } = await supabase.functions.invoke("universal-search", {
-        body: { query: searchQuery, userId: user.id },
+        body: { 
+          query: searchQuery, 
+          userId: user.id,
+          conversationHistory: chatHistory 
+        },
       });
 
       if (error) throw error;
       
-      setDecisionResult(data);
-      toast.success("Decision generated!");
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: data.response,
+        isQuestion: data.needsMoreInfo
+      };
+      
+      setChatHistory([...newHistory, assistantMessage]);
+      
+      if (!data.needsMoreInfo) {
+        toast.success("Decision made!");
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to process search");
+      setChatHistory(chatHistory);
     }
     setSearching(false);
   };
@@ -94,40 +120,52 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Decision Result */}
-          {decisionResult && (
+          {/* Chat History */}
+          {showChat && (
             <div className="bg-card rounded-2xl p-6 space-y-4" style={{ boxShadow: 'var(--shadow-card)' }}>
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-2">Decision</h3>
-                  <p className="text-foreground mb-4">{decisionResult.decision}</p>
-                  
-                  <h4 className="font-semibold mb-2">Why?</h4>
-                  <p className="text-muted-foreground mb-4">{decisionResult.reasoning}</p>
-                  
-                  {decisionResult.alternatives && decisionResult.alternatives.length > 0 && (
-                    <>
-                      <h4 className="font-semibold mb-2">Alternative Options:</h4>
-                      <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                        {decisionResult.alternatives.map((alt: string, i: number) => (
-                          <li key={i}>{alt}</li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </div>
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {chatHistory.map((message, i) => (
+                  <div key={i} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {message.role === 'assistant' && (
+                      <Sparkles className="w-6 h-6 text-accent flex-shrink-0 mt-1" />
+                    )}
+                    <div className={`flex-1 max-w-[80%] ${message.role === 'user' ? 'text-right' : ''}`}>
+                      <div className={`inline-block p-4 rounded-lg ${
+                        message.role === 'user' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-muted'
+                      }`}>
+                        <p className="whitespace-pre-line">{message.content}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex gap-3 pt-4 border-t">
+                <Input
+                  placeholder="Your response..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleUniversalSearch()}
+                  disabled={searching}
+                  className="flex-1"
+                />
+                <Button onClick={handleUniversalSearch} disabled={searching || !searchQuery.trim()}>
+                  {searching ? "..." : "Send"}
+                </Button>
               </div>
               
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  setDecisionResult(null);
+                  setChatHistory([]);
+                  setShowChat(false);
                   setSearchQuery("");
                 }}
                 className="w-full"
               >
-                Ask Another Question
+                Start New Decision
               </Button>
             </div>
           )}
