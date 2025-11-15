@@ -16,6 +16,8 @@ const Dinner = () => {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [pickedIndex, setPickedIndex] = useState<number | null>(null);
+  const [chatHistories, setChatHistories] = useState<Record<number, any[]>>({});
+  const [modifiedRecipe, setModifiedRecipe] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,6 +101,8 @@ const Dinner = () => {
     setLoading(true);
     setPickedIndex(null);
     setExpandedIndex(null);
+    setChatHistories({});
+    setModifiedRecipe(null);
     try {
       const { data, error } = await supabase.functions.invoke("generate-recipes", {
         body: { ingredients, userId: user.id },
@@ -112,6 +116,41 @@ const Dinner = () => {
       toast.error(error.message || "Failed to generate recipes");
     }
     setLoading(false);
+  };
+
+  const applyModifications = async (index: number) => {
+    const chatHistory = chatHistories[index];
+    if (!chatHistory || chatHistory.length === 0) {
+      return recipes[index];
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("chat-modify", {
+        body: {
+          messages: chatHistory.map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          currentItem: recipes[index]
+        }
+      });
+
+      if (error) throw error;
+
+      // Parse the AI response to extract modified recipe details
+      // For now, return original with AI suggestions in summary
+      return {
+        ...recipes[index],
+        summary: `${recipes[index].summary}\n\n${data.response}`
+      };
+    } catch (error: any) {
+      console.error("Error applying modifications:", error);
+      toast.error("Failed to apply modifications");
+      return recipes[index];
+    } finally {
+      setLoading(false);
+    }
   };
 
   const removeIngredient = (index: number) => {
@@ -216,10 +255,10 @@ const Dinner = () => {
             <div className="space-y-6">
               {pickedIndex !== null ? (
                 <SuggestionCard
-                  title={recipes[pickedIndex].title}
-                  summary={recipes[pickedIndex].summary}
-                  details={recipes[pickedIndex].details}
-                  imageUrl={recipes[pickedIndex].imageUrl}
+                  title={modifiedRecipe?.title || recipes[pickedIndex].title}
+                  summary={modifiedRecipe?.summary || recipes[pickedIndex].summary}
+                  details={modifiedRecipe?.details || recipes[pickedIndex].details}
+                  imageUrl={modifiedRecipe?.imageUrl || recipes[pickedIndex].imageUrl}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
                   expanded={true}
@@ -228,20 +267,25 @@ const Dinner = () => {
               ) : (
                 <>
                   {recipes.map((recipe, i) => (
-                <SuggestionCard
-                  key={i}
-                  title={recipe.title}
-                  summary={recipe.summary}
-                  details={recipe.details}
-                  imageUrl={recipe.imageUrl}
-                  onDoIt={() => {
-                    setPickedIndex(i);
-                    toast.success(`Let's make: ${recipe.title}`);
-                  }}
-                  onChatMessage={(msg) => console.log("Chat:", msg)}
-                  loading={loading}
-                  expanded={expandedIndex === i}
-                />
+                    <SuggestionCard
+                      key={i}
+                      title={recipe.title}
+                      summary={recipe.summary}
+                      details={recipe.details}
+                      imageUrl={recipe.imageUrl}
+                      onDoIt={async () => {
+                        const modified = await applyModifications(i);
+                        setModifiedRecipe(modified);
+                        setPickedIndex(i);
+                        toast.success(`Let's make: ${recipe.title}`);
+                      }}
+                      onChatMessage={(msg) => console.log("Chat:", msg)}
+                      onChatHistoryUpdate={(history) => {
+                        setChatHistories(prev => ({ ...prev, [i]: history }));
+                      }}
+                      loading={loading}
+                      expanded={expandedIndex === i}
+                    />
                   ))}
                   
                   {/* Action Buttons at the end */}
@@ -256,8 +300,10 @@ const Dinner = () => {
                       Suggest Again
                     </Button>
                     <Button 
-                      onClick={() => {
+                      onClick={async () => {
                         const randomIndex = Math.floor(Math.random() * recipes.length);
+                        const modified = await applyModifications(randomIndex);
+                        setModifiedRecipe(modified);
                         setPickedIndex(randomIndex);
                         toast.success(`Let's make: ${recipes[randomIndex].title}`);
                       }}
