@@ -2,6 +2,26 @@
 
 Pickly is an intelligent decision-making assistant that helps you make better choices in everyday situations. Whether you're deciding what to cook for dinner, what activity to do, or need help with any decision, Pickly uses AI to analyze your context and provide personalized suggestions.
 
+## About the Project
+
+### Inspiration
+Decision fatigue is real. Pickly was built to help people make faster, better decisions in everyday situations—from figuring out what to cook with available ingredients to choosing spontaneous activities.
+
+### What We Learned
+- Integrating multiple AI models for different tasks (visual analysis, conversation, recommendations)
+- Implementing real-time conversational AI with context awareness
+- Designing secure database schemas with Row Level Security
+- Building responsive UIs that handle image uploads and AI responses seamlessly
+
+### How We Built It
+Built with React 18, TypeScript, and Tailwind CSS on the frontend. Backend powered by Lovable Cloud (Supabase) with PostgreSQL, authentication, and Edge Functions. Multiple AI models (Gemini and GPT) handle visual analysis, conversations, and recommendations.
+
+### Challenges
+- Balancing AI model selection for cost, speed, and accuracy
+- Achieving reliable ingredient detection from varied fridge photos
+- Creating context-aware conversations without repetition
+- Ensuring data security while maintaining fast performance
+
 ## Features
 
 ### 🔍 Universal Decision Search
