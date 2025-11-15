@@ -43,6 +43,8 @@ Deno.serve(async (req) => {
     console.log('Image converted to base64, sending to AI...');
 
     // Use AI to analyze the image and detect ingredients
+    console.log('Making request to Lovable AI gateway...');
+    
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -53,15 +55,11 @@ Deno.serve(async (req) => {
         model: 'google/gemini-2.5-flash',
         messages: [
           {
-            role: 'system',
-            content: 'You are a food ingredient detection assistant. Analyze fridge photos and list all visible ingredients. Return a JSON array of ingredient names.'
-          },
-          {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: 'List all ingredients you can see in this fridge photo. Return only a JSON object with an "ingredients" array of strings.'
+                text: 'Analyze this fridge photo and list all visible food ingredients. Return your response as a JSON object with an "ingredients" field containing an array of ingredient names as strings.'
               },
               {
                 type: 'image_url',
@@ -74,10 +72,21 @@ Deno.serve(async (req) => {
       }),
     });
 
+    console.log('AI gateway response status:', response.status);
+
     if (!response.ok) {
-      const error = await response.text();
-      console.error('AI gateway error:', error);
-      throw new Error('Failed to analyze image');
+      const errorText = await response.text();
+      console.error('AI gateway error response:', errorText);
+      console.error('Response status:', response.status);
+      
+      if (response.status === 402) {
+        throw new Error('Lovable AI credits exhausted. Please add more credits in Settings > Workspace > Usage.');
+      }
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again in a moment.');
+      }
+      
+      throw new Error(`AI gateway error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
