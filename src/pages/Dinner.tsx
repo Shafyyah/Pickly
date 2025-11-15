@@ -129,7 +129,7 @@ const Dinner = () => {
           alt="" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/25" />
       </div>
       <div className="container mx-auto px-4 py-8 relative z-10">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6 text-foreground hover:bg-muted">

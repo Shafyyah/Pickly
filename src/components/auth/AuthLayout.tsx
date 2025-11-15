@@ -16,7 +16,7 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
           alt="" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/25" />
       </div>
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
