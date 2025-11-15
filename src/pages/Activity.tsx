@@ -7,7 +7,7 @@ import { SuggestionCard } from "@/components/SuggestionCard";
 import { toast } from "sonner";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import wallpaper from "@/assets/wallpaper.png";
+import wallpaper from "@/assets/wallpaper.jpg";
 
 const Activity = () => {
   const [user, setUser] = useState<any>(null);

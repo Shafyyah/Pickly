@@ -6,7 +6,7 @@ import { ArrowLeft, Upload, X, Loader2 } from "lucide-react";
 import { SuggestionCard } from "@/components/SuggestionCard";
 import { toast } from "sonner";
 import type { MindMapNode } from "@/components/MindMap";
-import wallpaper from "@/assets/wallpaper.png";
+import wallpaper from "@/assets/wallpaper.jpg";
 
 const Dinner = () => {
   const [user, setUser] = useState<any>(null);
