@@ -192,7 +192,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-2xl font-semibold">What should I cook tonight?</h3>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-card-foreground">
                 Upload a photo of your fridge and get personalized recipe suggestions
               </p>
             </button>
@@ -208,7 +208,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-2xl font-semibold">What should I do?</h3>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-card-foreground">
                 Get spontaneous activity suggestions based on time, weather, and your preferences
               </p>
             </button>
