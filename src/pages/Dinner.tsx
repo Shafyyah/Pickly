@@ -14,6 +14,7 @@ const Dinner = () => {
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [recipes, setRecipes] = useState<any[]>([]);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -198,6 +199,7 @@ const Dinner = () => {
                   onDoIt={() => console.log("Do it")}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
+                  expanded={expandedIndex === i}
                 />
               ))}
               
@@ -215,8 +217,8 @@ const Dinner = () => {
                 <Button 
                   onClick={() => {
                     const randomIndex = Math.floor(Math.random() * recipes.length);
-                    // TODO: Implement expand logic for the selected recipe
-                    console.log("Picked recipe:", recipes[randomIndex].title);
+                    setExpandedIndex(randomIndex);
+                    toast.success(`Selected: ${recipes[randomIndex].title}`);
                   }}
                   disabled={loading}
                   className="flex-1"

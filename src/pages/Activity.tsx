@@ -10,6 +10,7 @@ const Activity = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,6 +88,7 @@ const Activity = () => {
                   onDoIt={() => console.log("Do it")}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
+                  expanded={expandedIndex === i}
                 />
               ))}
               
@@ -104,7 +106,8 @@ const Activity = () => {
                 <Button 
                   onClick={() => {
                     const randomIndex = Math.floor(Math.random() * activities.length);
-                    console.log("Picked activity:", activities[randomIndex].title);
+                    setExpandedIndex(randomIndex);
+                    toast.success(`Selected: ${activities[randomIndex].title}`);
                   }}
                   disabled={loading}
                   className="flex-1"
