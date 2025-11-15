@@ -216,8 +216,8 @@ const Index = () => {
 
           {/* Info Section */}
           <div className="bg-primary/20 backdrop-blur-sm rounded-xl p-6 border border-primary/30">
-            <h4 className="font-semibold mb-2 text-foreground">Welcome to smarter decisions</h4>
-            <p className="text-sm text-muted-foreground">
+            <h4 className="font-bold mb-2 text-foreground text-lg">Welcome to smarter decisions</h4>
+            <p className="text-sm text-foreground">
               Our AI helps you make better choices by analyzing your context, preferences, and history. 
               Every decision includes a visual mind-map showing how we reached our recommendation.
             </p>
