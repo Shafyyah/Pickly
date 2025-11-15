@@ -15,6 +15,7 @@ const Dinner = () => {
   const [loading, setLoading] = useState(false);
   const [recipes, setRecipes] = useState<any[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [pickedIndex, setPickedIndex] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,6 +75,8 @@ const Dinner = () => {
     if (!user || ingredients.length === 0) return;
 
     setLoading(true);
+    setPickedIndex(null);
+    setExpandedIndex(null);
     try {
       const { data, error } = await supabase.functions.invoke("generate-recipes", {
         body: { ingredients, userId: user.id },
@@ -189,43 +192,58 @@ const Dinner = () => {
           {/* Recipes */}
           {recipes.length > 0 && (
             <div className="space-y-6">
-              {recipes.map((recipe, i) => (
+              {pickedIndex !== null ? (
                 <SuggestionCard
-                  key={i}
-                  title={recipe.title}
-                  summary={recipe.summary}
-                  details={recipe.details}
-                  mindMapNodes={recipe.mindMapNodes}
-                  onDoIt={() => console.log("Do it")}
+                  title={recipes[pickedIndex].title}
+                  summary={recipes[pickedIndex].summary}
+                  details={recipes[pickedIndex].details}
+                  imageUrl={recipes[pickedIndex].imageUrl}
                   onChatMessage={(msg) => console.log("Chat:", msg)}
                   loading={loading}
-                  expanded={expandedIndex === i}
+                  expanded={true}
+                  hideButtons={true}
                 />
-              ))}
-              
-              {/* Action Buttons at the end */}
-              <div className="flex gap-3 pt-4">
-                <Button 
-                  onClick={generateRecipes} 
-                  disabled={loading}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  Suggest Again
-                </Button>
-                <Button 
-                  onClick={() => {
-                    const randomIndex = Math.floor(Math.random() * recipes.length);
-                    setExpandedIndex(randomIndex);
-                    toast.success(`Selected: ${recipes[randomIndex].title}`);
-                  }}
-                  disabled={loading}
-                  className="flex-1"
-                >
-                  Pick For Me
-                </Button>
-              </div>
+              ) : (
+                <>
+                  {recipes.map((recipe, i) => (
+                    <SuggestionCard
+                      key={i}
+                      title={recipe.title}
+                      summary={recipe.summary}
+                      details={recipe.details}
+                      imageUrl={recipe.imageUrl}
+                      onDoIt={() => console.log("Do it")}
+                      onChatMessage={(msg) => console.log("Chat:", msg)}
+                      loading={loading}
+                      expanded={expandedIndex === i}
+                    />
+                  ))}
+                  
+                  {/* Action Buttons at the end */}
+                  <div className="flex gap-3 pt-4">
+                    <Button 
+                      onClick={generateRecipes} 
+                      disabled={loading}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      Suggest Again
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        const randomIndex = Math.floor(Math.random() * recipes.length);
+                        setPickedIndex(randomIndex);
+                        toast.success(`Let's make: ${recipes[randomIndex].title}`);
+                      }}
+                      disabled={loading}
+                      className="flex-1"
+                    >
+                      Pick For Me
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

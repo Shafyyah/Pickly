@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful recipe assistant. Generate 3 recipe suggestions based on available ingredients. Each recipe should include title, summary, ingredients list, cooking steps, prep time, and tips.'
+            content: 'You are a friendly recipe assistant. Generate 3 recipe suggestions based on available ingredients. Keep descriptions casual, fun, and inviting - like chatting with a foodie friend!'
           },
           {
             role: 'user',
@@ -38,11 +38,9 @@ Deno.serve(async (req) => {
             
             Return a JSON object with a "recipes" array. Each recipe should have:
             - title: string
-            - summary: string (1-2 sentences)
+            - summary: string (1 short, friendly sentence - keep it casual and appetizing!)
             - details: object with ingredients (array), steps (array), time (string), tips (string)
-            - mindMapNodes: array of objects with label and type (input/context/analysis/final)
-            
-            For mindMapNodes, include nodes like: detected ingredients, time of day, user preferences, cooking complexity, etc.`
+            - imagePrompt: string (detailed description for generating an appetizing food photo of the finished dish)`
           }
         ],
         response_format: { type: 'json_object' }
@@ -60,8 +58,43 @@ Deno.serve(async (req) => {
     
     console.log('Generated recipes:', result.recipes?.length);
 
+    // Generate images for each recipe
+    const recipesWithImages = await Promise.all(
+      result.recipes.map(async (recipe: any) => {
+        try {
+          const imageResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash-image-preview',
+              messages: [
+                {
+                  role: 'user',
+                  content: `Generate a beautiful, appetizing photo of: ${recipe.imagePrompt || recipe.title}. Professional food photography style, well-lit, high quality.`
+                }
+              ],
+              modalities: ['image', 'text']
+            }),
+          });
+
+          if (imageResponse.ok) {
+            const imageData = await imageResponse.json();
+            const imageUrl = imageData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+            return { ...recipe, imageUrl };
+          }
+          return recipe;
+        } catch (error) {
+          console.error('Error generating image for recipe:', error);
+          return recipe;
+        }
+      })
+    );
+
     return new Response(
-      JSON.stringify({ recipes: result.recipes }),
+      JSON.stringify({ recipes: recipesWithImages }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
